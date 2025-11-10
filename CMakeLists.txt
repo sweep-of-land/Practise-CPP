@@ -18,38 +18,20 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/Debug)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # 基础警告选项
+# 通用警告设置，适用于所有编译器
+if(MSVC OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
+    # MSVC 或 clang-cl
+    add_compile_options(/W4 /WX)
+    # clang-cl 需要额外的 clang 原生选项来检测未初始化变量
     add_compile_options(
-        -Wall 
-        -Wextra 
-        -Wpedantic
-        -Werror=return-type
-        -Werror=uninitialized
+        /clang:-Wall 
+        /clang:-Wextra 
+        /clang:-Wpedantic
+        /clang:-Wuninitialized
     )
-    
-    # 关闭C++98兼容性警告
-    add_compile_options(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
-    
-    # 为clang-cl设置正确的C++标准
-    if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-        # clang-cl使用MSVC风格参数
-        add_compile_options(/std:c++23)
-    else()
-        # 其他clang编译器使用标准参数
-        add_compile_options(-std=c++23)
-    endif()
-    
-    # 只在Release配置中启用sanitizer
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # clang-cl 识别MSVC参数，fsanitize不兼容
-        if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-            if(CMAKE_BUILD_TYPE STREQUAL "Release")
-                add_compile_options(-fsanitize=address -fsanitize=undefined)
-                add_link_options(-fsanitize=address -fsanitize=undefined)
-            endif()
-        endif()
-    endif()
+else()
+    # GCC 或普通 Clang
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wuninitialized)
 endif()
 
 add_executable(${PROJECT_NAME} 1109.cpp)

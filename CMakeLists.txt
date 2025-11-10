@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(Practise-CPP CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -16,19 +16,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wpedantic
         -Werror=return-type
         -Werror=uninitialized
-        -Werror=unused-variable
     )
     
     # 关闭C++98兼容性警告
     add_compile_options(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
     
-    # 为clang-cl设置正确的C++20标准
+    # 为clang-cl设置正确的C++标准
     if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
         # clang-cl使用MSVC风格参数
-        add_compile_options(/std:c++20)
+        add_compile_options(/std:c++23)
     else()
         # 其他clang编译器使用标准参数
-        add_compile_options(-std=c++20)
+        add_compile_options(-std=c++23)
     endif()
     
     # 只在Release配置中启用sanitizer
@@ -44,4 +43,4 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     endif()
 endif()
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} 1109.cpp)

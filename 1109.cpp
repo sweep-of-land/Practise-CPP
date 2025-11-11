@@ -2,8 +2,12 @@
 #include <print>
 
 int main() {
-    double i;
+    bool iii;
     // std::cout << i; // ERROR: Variable 'i' is uninitialized when used  here
-    std::print("{}", i); // PASSED: Not even a warning ?!
-    std::print("\nHello World!");
+    std::print("{}", iii); // PASSED: Not even a warning ?!
+    if (iii == true) {     // 冗余的布尔比较
+                           // 应改为：if (x)
+        std::print("\nHello");
+    }
+    std::print("\nWorld!");
 }

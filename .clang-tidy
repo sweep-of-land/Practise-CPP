@@ -1,0 +1,19 @@
+Checks: >
+    *,
+    -abseil-*,
+    -altera-*,
+    -fuchsia-*,
+    -android-*,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -readability-magic-numbers,
+    -modernize-use-trailing-return-type,
+    -llvmlibc-*
+    
+CheckOptions:
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  - key: readability-identifier-length.MinVariableNameLength
+    value: '1'
+    
+HeaderFilterRegex: '.*'
+FormatStyle: file

@@ -9,6 +9,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # 使用MSVC兼容模式
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
+# 启用 clang-tidy
+set(CMAKE_CXX_CLANG_TIDY 
+    "D:/LLVM/bin/clang-tidy.exe"
+    -header-filter=.*
+    -extra-arg=-std=c++23
+)
+
 # 设置默认构建类型
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -21,17 +28,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release)
 # 通用警告设置，适用于所有编译器
 if(MSVC OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
     # MSVC 或 clang-cl
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4)
     # clang-cl 需要额外的 clang 原生选项来检测未初始化变量
     add_compile_options(
         /clang:-Wall 
         /clang:-Wextra 
         /clang:-Wpedantic
         /clang:-Wuninitialized
+        /clang:-Wshadow
+        /clang:-Wconversion
     )
 else()
     # GCC 或普通 Clang
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wuninitialized)
+    add_compile_options(-Wall -Wextra -Wpedantic -Wuninitialized -Wshadow -Wconversion)
 endif()
 
 add_executable(${PROJECT_NAME} 1109.cpp)

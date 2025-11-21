@@ -67,6 +67,23 @@
 /* -------------------------------------------------------------------- */
 /** \name Internal Types
  * \{ */
+/* 1. 修复 unknown type name 'uint' */
+/* Blender 使用 uint 作为 unsigned int 的缩写，C++ 标准中没有这个类型 */
+using uint = unsigned int;
+using uchar = unsigned char;
+using ushort = unsigned short;
+
+/* 2. 修复 ATTR_PRINTF_FORMAT 宏缺失 */
+/* 这个宏用于编译器检查 printf 格式化字符串的安全性 */
+#ifndef ATTR_PRINTF_FORMAT
+#  if defined(__GNUC__) || defined(__clang__)
+#    define ATTR_PRINTF_FORMAT(format_param, dots_param) \
+      __attribute__((format(printf, format_param, dots_param)))
+#  else
+/* 在 MSVC 下不支持这种属性，直接定义为空即可 */
+#    define ATTR_PRINTF_FORMAT(format_param, dots_param)
+#  endif
+#endif
 
 static std::mutex LOG_MUTEX;
 

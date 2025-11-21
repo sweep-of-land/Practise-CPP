@@ -17,8 +17,8 @@ set(SRC
 )
 
 set(LIB
-  PRIVATE bf::intern::guardedalloc
-  PRIVATE bf::intern::atomic
+#   PRIVATE bf::intern::guardedalloc
+#   PRIVATE bf::intern::atomic
 )
 
 # Disabled for `makesdna` & `makesrna`.

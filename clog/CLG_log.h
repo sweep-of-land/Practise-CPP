@@ -30,6 +30,11 @@
 
 #pragma once
 
+#include <string>
+#ifdef _WIN32
+#  include <windows.h>
+#endif
+
 #ifdef __GNUC__
 #  define _CLOG_ATTR_NONNULL(args...) __attribute__((nonnull(args)))
 #else
@@ -204,3 +209,30 @@ inline CLG_LogRef::CLG_LogRef(const char *identifier)
 #define CLOG_INFO_NOCHECK(clg_ref, format, ...) \
   CLOG_AT_LEVEL_NOCHECK(clg_ref, CLG_LEVEL_INFO, format, __VA_ARGS__)
 #define CLOG_STR_INFO_NOCHECK(clg_ref, str) CLOG_STR_AT_LEVEL_NOCHECK(clg_ref, CLG_LEVEL_INFO, str)
+
+inline CLG_LogRef *init_logging(const char *identifier)
+{
+  static bool initialized = false;
+  static CLG_LogRef ref = {identifier};
+
+  if (!initialized) {
+#ifdef _WIN32
+    SetConsoleOutputCP(65001);
+#endif
+    // 2. 初始化 CLOG 系统
+    CLG_init();
+
+    // 3. 注册刚才定义的日志类别
+    CLG_logref_register(&ref);
+
+    // 可选：设置日志级别 (默认通常是 WARN)
+    // 设置为 INFO 可以看到 INFO 级别的日志
+    CLG_level_set(CLG_LEVEL_INFO);
+
+    // 启用颜色 (Windows 10+ 终端支持)
+    CLG_output_use_basename_set(1);   // 只显示文件名，不显示全路径
+    CLG_output_use_timestamp_set(1);  // 显示时间戳
+    initialized = true;
+  }
+  return &ref;
+}

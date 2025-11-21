@@ -47,6 +47,7 @@ int main()
   CLOG_INFO(LOG_MY_TEST, "系统启动完成，版本: %d", 2024);
   CLOG_WARN(LOG_MY_TEST, "这是一个警告信息，注意变量 x = %d", 42);
   CLOG_ERROR(LOG_MY_TEST, "发生了一个错误！");
+  //   CLOG_FATAL(LOG_MY_TEST, "发生了一个错误!!!!!！已中止");
 
   // 也可以用字符串宏
   CLOG_STR_INFO(LOG_MY_TEST, "这是一条纯字符串日志");

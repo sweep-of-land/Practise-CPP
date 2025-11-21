@@ -730,26 +730,34 @@ void CLG_log_raw(const CLG_LogType *lg, const char *message)
 static void CLG_ctx_output_set(CLogContext *ctx, void *file_handle)
 {
   ctx->output_file = static_cast<FILE *>(file_handle);
+// 兼容 MSVC 的 _fileno
+#ifdef _MSC_VER
+  ctx->output = _fileno(ctx->output_file);
+#else
   ctx->output = fileno(ctx->output_file);
+#endif
+
 #if defined(__unix__) || defined(__APPLE__)
   ctx->use_color = isatty(ctx->output);
-#elif defined(WIN32)
-  /* As of Windows 10 build 18298 all the standard consoles supports color
-   * like the Linux Terminal do, but it needs to be turned on.
-   * To turn on colors we need to enable virtual terminal processing by passing the flag
-   * ENABLE_VIRTUAL_TERMINAL_PROCESSING into SetConsoleMode.
-   * If the system doesn't support virtual terminal processing it will fail silently and the flag
-   * will not be set. */
+#elif defined(WIN32) || defined(_WIN32)
 
-  GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &clg_previous_console_mode);
-
-  ctx->use_color = 0;
-  if (IsWindows10OrGreater() && isatty(ctx->output)) {
-    DWORD mode = clg_previous_console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    if (SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), mode)) {
-      ctx->use_color = 1;
+  // 1. 尝试为标准控制台开启 VT 模式 (即使失败也不要紧)
+  // 这段代码是为了保证如果你直接双击 exe 运行 (cmd.exe) 也能有颜色
+  if (IsWindows10OrGreater()) {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut != INVALID_HANDLE_VALUE) {
+      GetConsoleMode(hOut, &clg_previous_console_mode);
+      DWORD mode = clg_previous_console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+      SetConsoleMode(hOut, mode);
     }
   }
+
+  // 2. 【强制开启颜色】
+  // 在 VS Code 中，上述 SetConsoleMode 可能会失败（因为 stdout 是管道），
+  // 导致 clog 以为不支持颜色。
+  // 这里我们直接强制为 1，相信 VS Code 终端能解析 ANSI 代码。
+  ctx->use_color = 1;
+
 #endif
 }
 
